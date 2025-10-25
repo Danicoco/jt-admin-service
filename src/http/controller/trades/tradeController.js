@@ -1,0 +1,71 @@
+const { jsonS, jsonFailed } = require("../../../utils");
+const {
+  listShipments,
+  getShipment,
+  createShipment,
+  updateShipment,
+  deleteShipment,
+  getMetrics,
+} = require("../../../services/shippingService");
+const {
+  fetchAddresses,
+  addAddresses,
+  updateAddresses,
+  getCryptoTransactions,
+  getGiftCardSellRequest,
+  getTradeChart,
+  getTradeMetrics,
+  processGiftCardSellRequest,
+} = require("../../../services/userService");
+
+const Controller = {
+  listCryptoTrans: async (req, res) => {
+    try {
+      const trans = await getCryptoTransactions();
+      return jsonS(res, 200, "Crypto Transaction fetched", trans);
+    } catch (err) {
+      console.error("Error fetching crypto transaction:", err);
+      return jsonFailed(res, {}, "Cannot fetch crypto transaction", 500);
+    }
+  },
+  metrics: async (req, res) => {
+    try {
+      const trans = await getTradeMetrics();
+      return jsonS(res, 200, "Crypto Transaction fetched", trans);
+    } catch (err) {
+      console.error("Error fetching crypto transaction:", err);
+      return jsonFailed(res, {}, "Cannot fetch crypto transaction", 500);
+    }
+  },
+  chart: async (req, res) => {
+    try {
+      const trans = await getTradeChart();
+      return jsonS(res, 200, "Crypto Transaction fetched", trans);
+    } catch (err) {
+      console.error("Error fetching crypto transaction:", err);
+      return jsonFailed(res, {}, "Cannot fetch crypto transaction", 500);
+    }
+  },
+  giftCardRequest: async (req, res) => {
+    try {
+      const trans = await getGiftCardSellRequest();
+      return jsonS(res, 200, "Gift card request fetched", trans);
+    } catch (err) {
+      console.error("Error fetching crypto transaction:", err);
+      return jsonFailed(res, {}, "Cannot fetch crypto transaction", 500);
+    }
+  },
+  processGiftCard: async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+      const trans = await processGiftCardSellRequest(id, status);
+      return jsonS(res, 200, "Gift card request fetched", trans);
+    } catch (err) {
+      console.error("Error fetching crypto transaction:", err);
+      return jsonFailed(res, {}, "Cannot fetch crypto transaction", 500);
+    }
+  },
+};
+
+module.exports = Controller;
