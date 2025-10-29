@@ -20,8 +20,9 @@ const {
 
 const Controller = {
   listCryptoTrans: async (req, res) => {
+    const { giftcard, cryptoType, coin } = req.query;
     try {
-      const trans = await getCryptoTransactions();
+      const trans = await getCryptoTransactions(cryptoType, coin, giftcard);
       return jsonS(res, 200, "Crypto Transaction fetched", trans);
     } catch (err) {
       console.error("Error fetching crypto transaction:", err);
@@ -57,9 +58,9 @@ const Controller = {
   },
   processGiftCard: async (req, res) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, reason } = req.body;
     try {
-      const trans = await processGiftCardSellRequest(id, status);
+      const trans = await processGiftCardSellRequest(id, { status, reason });
       return jsonS(res, 200, "Gift card request fetched", trans);
     } catch (err) {
       console.error("Error fetching crypto transaction:", err);

@@ -47,8 +47,8 @@ async function getOverview(userId) {
   return safe(() => client.get(`/internal/customers/${userId}/overview`), null);
 }
 
-async function getCryptoTransactions(cryptoType, coin, page = 1, limit = 20) {
-  return safe(() => walletClient.get(`/internal/crypto/transactions`, { params: { ...(cryptoType && { cryptoType }), ...(coin && { coin }), page, limit } }));
+async function getCryptoTransactions(cryptoType, coin, giftcard, page = 1, limit = 20) {
+  return safe(() => walletClient.get(`/internal/crypto/transactions`, { params: { ...(cryptoType && { cryptoType }), ...(coin && { coin }), ...(giftcard && { giftcard }), page, limit } }));
 }
 
 async function getTradeMetrics() {
@@ -63,8 +63,8 @@ async function getGiftCardSellRequest(page = 1, limit = 20) {
   return safe(() => walletClient.get(`/internal/gift-card/list-requests`, { params: { page, limit } }));
 }
 
-async function processGiftCardSellRequest(id, status) {
-  return safe(() => walletClient.patch(`/internal/gift-card/${id}/status`, { status }), {});
+async function processGiftCardSellRequest(id, values) {
+  return safe(() => walletClient.patch(`/internal/gift-card/${id}/status`, values), {});
 }
 
 async function getPlatformGiftCard(id, status) {
@@ -72,7 +72,7 @@ async function getPlatformGiftCard(id, status) {
 }
 
 async function getHoldings(userId) {
-  return safe(() => walletClient.get(`/internal/users/${userId}/wallet/summary`), { fiatBalance: 0 });
+  return safe(() => walletClient.get(`/internal/wallet/holdings`, { params: { customerId: userId } }), { customerId: userId });
 }
 
 async function getOrders(userId, params) {

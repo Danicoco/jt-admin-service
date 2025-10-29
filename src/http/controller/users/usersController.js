@@ -1,11 +1,25 @@
 const { jsonS, jsonFailed } = require("../../../utils");
-const { listCustomers, getCustomerMetrics, getHoldings, getOrders, getOverview, getTransactions, setUserStatus } = require("../../../services/userService");
+const {
+  listCustomers,
+  getCustomerMetrics,
+  getHoldings,
+  getOrders,
+  getOverview,
+  getTransactions,
+  setUserStatus,
+} = require("../../../services/userService");
 
 const Controller = {
   list: async (req, res) => {
     try {
       const { page, limit, search, verified, active } = req.query;
-      const out = await listCustomers({ page, limit, search, verified, active });
+      const out = await listCustomers({
+        page,
+        limit,
+        search,
+        verified,
+        active,
+      });
       return jsonS(res, 200, "Users fetched", out);
     } catch (e) {
       console.error("admin users.list error:", e?.response?.data || e);
@@ -27,13 +41,17 @@ const Controller = {
   userDetails: async (req, res) => {
     try {
       const { id } = req.params;
-      const [overview, holdings] = await Promise.all([ getOverview(id), getHoldings(id)]);
+      const [overview, holdings] = await Promise.all([
+        getOverview(id),
+        getHoldings(id),
+      ]);
       if (!overview) return jsonFailed(res, {}, "Not found", 404);
 
       return jsonS(res, 200, "OK", {
-        profile:     overview.profile,
-        location:    overview.location,
+        profile: overview.profile,
+        location: overview.location,
         ordersCount: overview.ordersCount,
+        holdings,
       });
     } catch (e) {
       console.error("admin.customers.details error:", e);
