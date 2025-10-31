@@ -59,8 +59,8 @@ async function getTradeChart() {
   return safe(() => walletClient.get(`/internal/crypto/transactions/charts`));
 }
 
-async function getGiftCardSellRequest(page = 1, limit = 20) {
-  return safe(() => walletClient.get(`/internal/gift-card/list-requests`, { params: { page, limit } }));
+async function getGiftCardSellRequest(status, page = 1, limit = 20) {
+  return safe(() => walletClient.get(`/internal/gift-card/list-requests`, { params: { page, limit, ...(status && { status }) } }));
 }
 
 async function processGiftCardSellRequest(id, values) {

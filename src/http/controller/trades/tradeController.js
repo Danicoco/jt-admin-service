@@ -48,8 +48,9 @@ const Controller = {
     }
   },
   giftCardRequest: async (req, res) => {
+    const { status } = req.query;
     try {
-      const trans = await getGiftCardSellRequest();
+      const trans = await getGiftCardSellRequest(status);
       return jsonS(res, 200, "Gift card request fetched", trans);
     } catch (err) {
       console.error("Error fetching crypto transaction:", err);

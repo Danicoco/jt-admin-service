@@ -18,6 +18,7 @@ router.get("/rates/crypto/:name", requireInternalKey, RatesController.getCryptoR
 router.get('/rates/shipping/categories', requireInternalKey, RatesController.listShippingCategories);
 router.get('/rates/shipping/products',   requireInternalKey, RatesController.listShippingProducts);
 router.get('/rates/shipping/catalog', requireInternalKey, RatesController.listShippingCatalog);
+router.get('/rates/platform', requireInternalKey, RatesController.getPlatformRate);
 
 router.get( "/shipping/:id", requireInternalKey, ShippingController.get);
 router.patch( "/shipping/:id/pay-confirm", requireInternalKey, ShippingController.confirmPay);

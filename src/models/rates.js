@@ -6,7 +6,7 @@ const rateSchema = new Schema({
   type: {
     type: String,
     required: true,
-    enum: ["giftcard", "shipping", "crypto"], 
+    enum: ["giftcard", "sell-giftcard", "shipping", "crypto"],
   },
   name: {
     type: String,
@@ -25,6 +25,10 @@ const rateSchema = new Schema({
     required: false,
   },
   category: {
+    type: String, // e.g., Electronics for shipping
+    required: false,
+  },
+  subCategory: {
     type: String, // e.g., Electronics for shipping
     required: false,
   },
@@ -47,6 +51,9 @@ const rateSchema = new Schema({
   isActive: {
     type: Boolean,
     default: true,
+  },
+  image: {
+    type: "String"
   }
 }, { timestamps: true });
 

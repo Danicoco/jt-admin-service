@@ -1,4 +1,5 @@
 const Rate = require("../../../models/rates");
+const PlatformRate = require("../../../models/platformRate");
 const { v4: uuidv4 } = require("uuid");
 const { jsonS, jsonFailed } = require("../../../utils");
 const { getPlatformGiftCard } = require("../../../services/userService");
@@ -7,7 +8,7 @@ const Controller = {
   listRates: async (req, res) => {
     try {
       const {
-        type, // "giftcard" | "shipping" | "crypto"
+        type,
         country,
         state,
         region,
@@ -19,30 +20,6 @@ const Controller = {
 
       if (!type) {
         return jsonFailed(res, {}, "Query parameter `type` is required", 400);
-      }
-
-      if (type === "giftcard") {
-        const platformRates = await Rate.countDocuments({ type: "giftcard" });
-        if (!platformRates || platformRates === 0) {
-          const platformCards = await getPlatformGiftCard();
-          console.log(platformCards);
-          if (platformCards?.length) {
-            const docs = platformCards.map((prod) => ({
-              type: "giftcard",
-              name: prod.brandName,
-              country: prod.country,
-              category: prod.brandName,
-              product: prod,
-              range: {
-                min: 0.0000001,
-                max: 1000000,
-              },
-              rate: prod.thirdPartyRate,
-            }));
-
-            await Rate.insertMany(docs, { ordered: true });
-          }
-        }
       }
 
       let rates = [];
@@ -88,7 +65,6 @@ const Controller = {
       return jsonFailed(res, {}, "Internal server error", 500);
     }
   },
-
   createRate: async (req, res) => {
     try {
       const {
@@ -103,9 +79,11 @@ const Controller = {
         weight,
         range,
         rate,
+        photoUrl,
+        subCategory
       } = req.body;
 
-      if (!["giftcard", "shipping", "crypto"].includes(type)) {
+      if (!["giftcard", "shipping", "crypto", "sell-giftcard"].includes(type)) {
         return jsonFailed(res, {}, "Invalid rate type", 400);
       }
       if (!name || rate == null) {
@@ -161,7 +139,7 @@ const Controller = {
 
         const docs = productList.map((prod) => ({
           type,
-          name,
+          name: name.toLowerCase(),
           country,
           state,
           region,
@@ -170,6 +148,8 @@ const Controller = {
           weight,
           range,
           rate,
+          subCategory,
+          ...(photoUrl && { image: photoUrl })
         }));
 
         const created = await Rate.insertMany(docs, { ordered: true });
@@ -193,18 +173,27 @@ const Controller = {
         state,
         region,
         category,
+        subCategory,
         product,
         weight,
         range,
+        ...(req.body['range[min]'] && req.body['range[max]'] && {
+          range: {
+            min: Number(req.body['range[min]']),
+            max: Number(req.body['range[max]'])
+          }
+        }),
         rate,
+        ...(photoUrl && { image: photoUrl })
       });
+      console.log(req.body, "REQ BODY");
+      console.log(newRate);
       return jsonS(res, 201, `${type} rate created successfully`, newRate);
     } catch (error) {
       console.error("Error creating rate:", error);
       return jsonFailed(res, {}, "Internal server error", 500);
     }
   },
-
   updateRate: async (req, res) => {
     const { id } = req.params;
     const { rate: newRateValue } = req.body;
@@ -223,7 +212,36 @@ const Controller = {
       return jsonFailed(res, {}, "Internal server error", 500);
     }
   },
-
+  createOrUpdatePlatformRate: async (req, res) => {
+    const { rate } = req.body;
+    try {
+      let result;
+      const platform = await PlatformRate.findOne({ baseCurrency: "USD", quoteCurrency: "NGN" });
+      if (!platform) {
+        result = await new PlatformRate({
+          baseCurrency: "USD", quoteCurrency: "NGN", rate,
+        }).save();
+      } else {
+        result = await PlatformRate.updateOne(
+          { _id: platform._id },
+          { rate }
+        )
+      }
+      return jsonS(res, 200, "Rate updated successfully", result);
+    } catch (error) {
+      console.error("Error updating rate:", error);
+      return jsonFailed(res, {}, "Internal server error", 500);
+    }
+  },
+  getPlatformRate: async (_req, res) => {
+    try {
+      const platform = await PlatformRate.findOne({ baseCurrency: "USD", quoteCurrency: "NGN" });
+      return jsonS(res, 200, "Rate updated successfully", platform);
+    } catch (error) {
+      console.error("Error updating rate:", error);
+      return jsonFailed(res, {}, "Internal server error", 500);
+    }
+  },
   getCryptoRateByName: async (req, res) => {
     const { name } = req.params;
     if (!name) {
@@ -249,7 +267,6 @@ const Controller = {
       return jsonFailed(res, {}, "Internal server error", 500);
     }
   },
-
   listShippingCategories: async (req, res) => {
     try {
       const { country, state, region } = req.query;
