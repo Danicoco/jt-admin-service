@@ -15,6 +15,7 @@ router.get("/shipping/drop-off/:id", requireInternalKey, DropOffController.get);
 router.patch("/shipping/drop-off/:id", requireInternalKey, DropOffController.update);
 router.get("/rates", requireInternalKey, RatesController.listRates);
 router.get("/rates/crypto/:name", requireInternalKey, RatesController.getCryptoRateByName);
+router.get("/rates/all", requireInternalKey, RatesController.getInternalRates);
 router.get('/rates/shipping/categories', requireInternalKey, RatesController.listShippingCategories);
 router.get('/rates/shipping/products',   requireInternalKey, RatesController.listShippingProducts);
 router.get('/rates/shipping/catalog', requireInternalKey, RatesController.listShippingCatalog);

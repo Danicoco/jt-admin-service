@@ -80,7 +80,7 @@ const Controller = {
         range,
         rate,
         photoUrl,
-        subCategory
+        subCategory,
       } = req.body;
 
       if (!["giftcard", "shipping", "crypto", "sell-giftcard"].includes(type)) {
@@ -149,7 +149,7 @@ const Controller = {
           range,
           rate,
           subCategory,
-          ...(photoUrl && { image: photoUrl })
+          ...(photoUrl && { image: photoUrl }),
         }));
 
         const created = await Rate.insertMany(docs, { ordered: true });
@@ -177,14 +177,15 @@ const Controller = {
         product,
         weight,
         range,
-        ...(req.body['range[min]'] && req.body['range[max]'] && {
-          range: {
-            min: Number(req.body['range[min]']),
-            max: Number(req.body['range[max]'])
-          }
-        }),
+        ...(req.body["range[min]"] &&
+          req.body["range[max]"] && {
+            range: {
+              min: Number(req.body["range[min]"]),
+              max: Number(req.body["range[max]"]),
+            },
+          }),
         rate,
-        ...(photoUrl && { image: photoUrl })
+        ...(photoUrl && { image: photoUrl }),
       });
       console.log(req.body, "REQ BODY");
       console.log(newRate);
@@ -216,16 +217,18 @@ const Controller = {
     const { rate } = req.body;
     try {
       let result;
-      const platform = await PlatformRate.findOne({ baseCurrency: "USD", quoteCurrency: "NGN" });
+      const platform = await PlatformRate.findOne({
+        baseCurrency: "USD",
+        quoteCurrency: "NGN",
+      });
       if (!platform) {
         result = await new PlatformRate({
-          baseCurrency: "USD", quoteCurrency: "NGN", rate,
+          baseCurrency: "USD",
+          quoteCurrency: "NGN",
+          rate,
         }).save();
       } else {
-        result = await PlatformRate.updateOne(
-          { _id: platform._id },
-          { rate }
-        )
+        result = await PlatformRate.updateOne({ _id: platform._id }, { rate });
       }
       return jsonS(res, 200, "Rate updated successfully", result);
     } catch (error) {
@@ -235,7 +238,10 @@ const Controller = {
   },
   getPlatformRate: async (_req, res) => {
     try {
-      const platform = await PlatformRate.findOne({ baseCurrency: "USD", quoteCurrency: "NGN" });
+      const platform = await PlatformRate.findOne({
+        baseCurrency: "USD",
+        quoteCurrency: "NGN",
+      });
       return jsonS(res, 200, "Rate updated successfully", platform);
     } catch (error) {
       console.error("Error updating rate:", error);
@@ -244,6 +250,7 @@ const Controller = {
   },
   getCryptoRateByName: async (req, res) => {
     const { name } = req.params;
+    const { amount } = req.query;
     if (!name) {
       return jsonFailed(res, {}, "`name` parameter is required", 400);
     }
@@ -252,6 +259,11 @@ const Controller = {
         type: "crypto",
         name: name.toLowerCase(),
         isActive: true,
+        "range.min": { $lte: Number(amount) },
+        "range.max": { $gte: Number(amount) },
+      });
+      console.log({
+        rateDoc,
       });
       if (!rateDoc) {
         return jsonFailed(
@@ -262,6 +274,21 @@ const Controller = {
         );
       }
       return jsonS(res, 200, "Crypto rate fetched successfully", rateDoc);
+    } catch (error) {
+      console.error("Error fetching crypto rate by name:", error);
+      return jsonFailed(res, {}, "Internal server error", 500);
+    }
+  },
+  getInternalRates: async (req, res) => {
+    const { name, type } = req.query;
+    try {
+      const rateDocs = await Rate.find({
+        type: type || "crypto",
+        name: name.toLowerCase(),
+        isActive: true,
+      });
+      
+      return jsonS(res, 200, "Crypto rate fetched successfully", rateDocs);
     } catch (error) {
       console.error("Error fetching crypto rate by name:", error);
       return jsonFailed(res, {}, "Internal server error", 500);
