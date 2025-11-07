@@ -6,7 +6,7 @@ const rateSchema = new Schema({
   type: {
     type: String,
     required: true,
-    enum: ["giftcard", "sell-giftcard", "shipping", "crypto"],
+    enum: ["giftcard", "sell-giftcard", "shipping", "crypto", "sell-crypto"],
   },
   name: {
     type: String,

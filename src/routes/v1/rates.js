@@ -10,6 +10,7 @@ router.get("/rates", auth, RatesController.listRates);
 router.get("/platform-rate", auth, RatesController.getPlatformRate);
 router.post("/platform-rate", auth, RatesController.createOrUpdatePlatformRate);
 router.patch("/rates/:id", auth, cloudConfig, uploadField("image", "rates"), RatesController.updateRate);
+router.delete("/rates/:id", auth, RatesController.deleteRate);
 
 module.exports = {
   baseUrl: "/admin",
