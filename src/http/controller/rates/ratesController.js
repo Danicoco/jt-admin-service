@@ -83,7 +83,15 @@ const Controller = {
         subCategory,
       } = req.body;
 
-      if (!["giftcard", "shipping", "crypto", "sell-crypto", "sell-giftcard"].includes(type)) {
+      if (
+        ![
+          "giftcard",
+          "shipping",
+          "crypto",
+          "sell-crypto",
+          "sell-giftcard",
+        ].includes(type)
+      ) {
         return jsonFailed(res, {}, "Invalid rate type", 400);
       }
       if (!name || rate == null) {
@@ -213,10 +221,10 @@ const Controller = {
       return jsonFailed(res, {}, "Internal server error", 500);
     }
   },
-    deleteRate: async (req, res) => {
+  deleteRate: async (req, res) => {
     const { id } = req.params;
     try {
-      const updated = await Rate.deleteOne({ id });
+      const updated = await Rate.deleteOne({ _id: id });
       return jsonS(res, 200, "Rate deleted successfully", updated);
     } catch (error) {
       console.error("Error updating rate:", error);
@@ -297,7 +305,7 @@ const Controller = {
         name: name.toLowerCase(),
         isActive: true,
       });
-      
+
       return jsonS(res, 200, "Crypto rate fetched successfully", rateDocs);
     } catch (error) {
       console.error("Error fetching crypto rate by name:", error);
