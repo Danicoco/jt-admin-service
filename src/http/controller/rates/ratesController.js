@@ -76,12 +76,12 @@ const Controller = {
         category,
         product,
         products,
-        weight,
-        range,
         rate,
         photoUrl,
         subCategory,
       } = req.body;
+
+      let weight = Number(req.body?.weight || 0);
 
       if (
         ![
@@ -109,9 +109,11 @@ const Controller = {
         }
 
         let productList = [];
-        if (Array.isArray(products) && products.length) {
+        let productToUse = products || req.body['products[]'];
+        console.log(req.body,products,productToUse, Array.isArray(products))
+        if (Array.isArray(productToUse) && productToUse.length) {
           productList = [
-            ...new Set(products.map((p) => String(p).trim()).filter(Boolean)),
+            ...new Set(productToUse.map((p) => String(p).trim()).filter(Boolean)),
           ];
         } else if (product) {
           productList = [String(product).trim()];
@@ -126,6 +128,12 @@ const Controller = {
           );
         }
 
+        let range = {}
+        if (req.body['range[min]'] && req.body['range[max]']) {
+          range = { min: Number(req.body['range[min]']), max: Number(req.body['range[max]'])}
+        }
+
+        
         const hasExactWeight =
           typeof weight === "number" && !Number.isNaN(weight);
         const hasRange =
@@ -144,6 +152,8 @@ const Controller = {
         if (hasRange && range.min > range.max) {
           return jsonFailed(res, {}, "`range.min` must be <= `range.max`", 400);
         }
+
+        console.log({ productList })
 
         const docs = productList.map((prod) => ({
           type,

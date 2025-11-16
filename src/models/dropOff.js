@@ -8,6 +8,7 @@ const DropOffSchema = new Schema(
     _id: { type: String, default: () => uuidv4() },
     customerUserId: { type: String, ref: "User", required: true, index: true },
     user: { type: "Map" },
+    pickup: { type: "Map" },
     courier: { type: "String", required: true },
     trackingNumber: { type: "String", required: true },
     description: { type: "String" },

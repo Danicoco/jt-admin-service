@@ -71,11 +71,20 @@ async function deleteShipment(id) {
 
 async function getMetrics() {
   const statuses = ['pending','shipped','in_transit','delivered','need_attention'];
-  const result = {};
-  for (const st of statuses) {
-    result[st] = await Shipment.countDocuments({ shipmentStatus: st });
+  const [pending, shipped, in_transit, delivered, need_attention] = await Promise.all([
+    Shipment.countDocuments({ shipmentStatus: statuses[0] }),
+    Shipment.countDocuments({ shipmentStatus: statuses[1] }),
+    Shipment.countDocuments({ shipmentStatus: statuses[2] }),
+    Shipment.countDocuments({ shipmentStatus: statuses[3] }),
+    Shipment.countDocuments({ shipmentStatus: statuses[4] }),  
+  ])
+  return {
+    pending,
+    shipped,
+    in_transit,
+    delivered,
+    need_attention
   }
-  return result;
 }
 
 module.exports = {

@@ -16,6 +16,7 @@ const {
   getTradeChart,
   getTradeMetrics,
   processGiftCardSellRequest,
+  getCardMetrics,
 } = require("../../../services/userService");
 
 const Controller = {
@@ -31,7 +32,10 @@ const Controller = {
   },
   metrics: async (req, res) => {
     try {
-      const trans = await getTradeMetrics();
+      const trans = await Promise.all([
+        getTradeMetrics(),
+        getCardMetrics()
+      ])
       return jsonS(res, 200, "Crypto Transaction fetched", trans);
     } catch (err) {
       console.error("Error fetching crypto transaction:", err);
