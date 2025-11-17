@@ -194,7 +194,7 @@ const Controller = {
                 return jsonFailed(res, {}, 'Invalid price value', 400);
             }
 
-            const product = await Product.create(payload);
+        const product = await Product.create(payload);
             return jsonS(res, 201, "Product created", product);
         } catch (err) {
             console.error("createProduct error:", err);
