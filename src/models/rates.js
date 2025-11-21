@@ -40,6 +40,10 @@ const rateSchema = new Schema({
     type: Number, // For shipping
     required: false,
   },
+  rateType: {
+    type: String, // For shipping
+    required: false,
+  },
   range: {
     min: { type: Number, required: false },
     max: { type: Number, required: false },

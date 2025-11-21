@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const {Schema} = require('mongoose');
+const { db } = require('../utils/mongoDb');
 
 const ClicksSchema = new Schema({
   _id:        { type: String, required: true },
@@ -7,4 +7,4 @@ const ClicksSchema = new Schema({
   lastViewAt: { type: Date,   default: null },
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
-module.exports = mongoose.model('Clicks', ClicksSchema);
+module.exports = db.model('Clicks', ClicksSchema);

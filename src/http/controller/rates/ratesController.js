@@ -77,6 +77,7 @@ const Controller = {
         product,
         products,
         rate,
+        rateType,
         photoUrl,
         subCategory,
       } = req.body;
@@ -109,11 +110,13 @@ const Controller = {
         }
 
         let productList = [];
-        let productToUse = products || req.body['products[]'];
-        console.log(req.body,products,productToUse, Array.isArray(products))
+        let productToUse = products || req.body["products[]"];
+        console.log(req.body, products, productToUse, Array.isArray(products));
         if (Array.isArray(productToUse) && productToUse.length) {
           productList = [
-            ...new Set(productToUse.map((p) => String(p).trim()).filter(Boolean)),
+            ...new Set(
+              productToUse.map((p) => String(p).trim()).filter(Boolean)
+            ),
           ];
         } else if (product) {
           productList = [String(product).trim()];
@@ -128,12 +131,14 @@ const Controller = {
           );
         }
 
-        let range = {}
-        if (req.body['range[min]'] && req.body['range[max]']) {
-          range = { min: Number(req.body['range[min]']), max: Number(req.body['range[max]'])}
+        let range = {};
+        if (req.body["range[min]"] && req.body["range[max]"]) {
+          range = {
+            min: Number(req.body["range[min]"]),
+            max: Number(req.body["range[max]"]),
+          };
         }
 
-        
         const hasExactWeight =
           typeof weight === "number" && !Number.isNaN(weight);
         const hasRange =
@@ -153,7 +158,7 @@ const Controller = {
           return jsonFailed(res, {}, "`range.min` must be <= `range.max`", 400);
         }
 
-        console.log({ productList })
+        console.log({ productList });
 
         const docs = productList.map((prod) => ({
           type,
@@ -165,6 +170,7 @@ const Controller = {
           product: prod,
           weight,
           range,
+          rateType,
           rate,
           subCategory,
           ...(photoUrl && { image: photoUrl }),
@@ -278,13 +284,13 @@ const Controller = {
   },
   getCryptoRateByName: async (req, res) => {
     const { name } = req.params;
-    const { amount } = req.query;
+    const { amount, type } = req.query;
     if (!name) {
       return jsonFailed(res, {}, "`name` parameter is required", 400);
     }
     try {
       const rateDoc = await Rate.findOne({
-        type: "crypto",
+        type: type || "crypto",
         name: name.toLowerCase(),
         isActive: true,
         "range.min": { $lte: Number(amount) },
@@ -365,11 +371,28 @@ const Controller = {
 
       const docs = await Rate.aggregate([
         { $match: match },
-        { $group: { _id: { category: "$category", product: "$product" } } },
+        {
+          $group: {
+            _id: {
+              category: "$category",
+              product: "$product",
+              rate: "$rate",
+              rateType: "$rateType",
+              state: "$state",
+            },
+          },
+        },
         {
           $group: {
             _id: "$_id.category",
-            products: { $addToSet: "$_id.product" },
+            products: {
+              $addToSet: {
+                product: "$_id.product",
+                rate: "$_id.rate",
+                rateType: "$_id.rateType",
+                state: "$_id.state"
+              },
+            },
           },
         },
         {
@@ -380,11 +403,17 @@ const Controller = {
               $filter: {
                 input: "$products",
                 as: "p",
-                cond: { $and: [{ $ne: ["$$p", null] }, { $ne: ["$$p", ""] }] },
+                cond: {
+                  $and: [
+                    { $ne: ["$$p.product", null] },
+                    { $ne: ["$$p.product", ""] },
+                  ],
+                },
               },
             },
           },
         },
+
         { $sort: { category: 1 } },
       ]);
 

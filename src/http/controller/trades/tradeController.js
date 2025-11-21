@@ -65,7 +65,9 @@ const Controller = {
     const { id } = req.params;
     const { status, reason } = req.body;
     try {
+      console.log({ id, status, reason });
       const trans = await processGiftCardSellRequest(id, { status, reason });
+      console.log(trans);
       return jsonS(res, 200, "Gift card request fetched", trans);
     } catch (err) {
       console.error("Error fetching crypto transaction:", err);

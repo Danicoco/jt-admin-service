@@ -1,6 +1,5 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const { db } = require('../utils/mongoDb');
-const { Schema } = mongoose;
 const { generateProductSku } = require('../utils/sku');
 
 const VariantSchema = new Schema({
@@ -18,7 +17,7 @@ const ProductSchema = new Schema({
     validate: {
       validator: async function (v) {
         if (!v) return false;
-        return !!(await mongoose.model('Category').exists({ _id: v }));
+        return !!(await db.model('Category').exists({ _id: v }));
       },
       message: 'Invalid category_id: category does not exist',
     },
@@ -30,7 +29,7 @@ const ProductSchema = new Schema({
       validator: async function (sub) {
         if (!sub) return true;
         if (!this.category_id) return false;
-        const cat = await mongoose.model('Category')
+        const cat = await db.model('Category')
           .findById(this.category_id).select('subcategory');
         return !!(cat && Array.isArray(cat.subcategory) && cat.subcategory.includes(sub));
       },

@@ -13,7 +13,7 @@ const PersonSchema = new Schema({
 
 const PkgSchema = new Schema({
   category:    { type: String, required: true },
-  type:        { type: String, enum: ['New','Used'], required: true },
+  type:        { type: String, required: true },
   weight:      { type: Number, required: true, min: 0 },
   quantity:    { type: Number, required: true, min: 1 },
   description: { type: String },
