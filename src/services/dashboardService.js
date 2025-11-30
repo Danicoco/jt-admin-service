@@ -54,6 +54,7 @@ async function getSummary() {
     productSold: toNumber(orderMetrics.productSold),
     orders: toNumber(orderMetrics.totalOrders),
     totalCustomers: toNumber(usersCount.count),
+    totalReferrals: toNumber(usersCount.referrals)
   };
 }
 
