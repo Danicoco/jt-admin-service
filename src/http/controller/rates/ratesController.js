@@ -79,6 +79,7 @@ const Controller = {
         rate,
         rateType,
         photoUrl,
+        range,
         subCategory,
       } = req.body;
 
