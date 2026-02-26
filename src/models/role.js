@@ -3,20 +3,12 @@ const { v4: uuidv4 } = require("uuid");
 const { db } = require("../utils/mongoDb");
 const { Schema } = mongoose;
 
-const PermissionSchema = new Schema(
-    {
-        module: {
-            type: String,
-          },
-          permission: {
-              canCreate: Boolean,
-              canView: Boolean,
-              canUpdate: Boolean,
-              canTreat: Boolean,
-              canDelete: Boolean,
-          }
-    }
-)
+const PermissionSchema = new Schema({
+  module: {
+    type: String,
+  },
+  permission: "Map",
+});
 
 const RoleSchema = new Schema(
   {
@@ -27,7 +19,7 @@ const RoleSchema = new Schema(
     title: {
       type: String,
       required: true,
-      index: true
+      index: true,
     },
     permissions: [PermissionSchema],
     numberOfUserAssigned: {
@@ -40,7 +32,7 @@ const RoleSchema = new Schema(
       updatedAt: "updated_at",
     },
     collection: "roles",
-  }
+  },
 );
 
 module.exports = db.model("Role", RoleSchema);
