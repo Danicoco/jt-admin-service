@@ -47,11 +47,11 @@ const Controller = {
       const { email, password } = req.body;
       try {
         const adminExist = await Admin.findOne({ email: email }).select("+password");
-        
         // Handle case when admin does not exist
         if (!adminExist) {
-          return jsonFailed(res, null, "Admin not found", 404);
+            return jsonFailed(res, null, "Admin not found", 404);
         }
+        const role = await Role.findOne({ _id: adminExist.roleId });
     
         if (adminExist.isVerified && adminExist.isActive) {
           
@@ -59,7 +59,7 @@ const Controller = {
           
           if (passwordIsValid) {
             req.session.admin = adminExist; 
-            var token = Controller.getToken(adminExist); 
+            var token = Controller.getToken(adminExist, role); 
             return jsonS(res, 200, "success", token, {}); 
           } else {
             return jsonFailed(res, null, "Invalid username or password");
@@ -127,7 +127,7 @@ const Controller = {
         }
     },
 
-    getToken: (admin) => {
+    getToken: (admin,role) => {
         const token = jwt.sign(
         {
             id: admin._id,
@@ -147,6 +147,7 @@ const Controller = {
         role: admin.role,             
         token: token,
         token_type: "jwt",
+        permissions: role?.permissions,
         expiresIn: 7776000,
         };
     },
