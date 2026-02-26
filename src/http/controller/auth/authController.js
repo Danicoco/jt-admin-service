@@ -46,12 +46,13 @@ const Controller = {
     login: async (req, res) => {
       const { email, password } = req.body;
       try {
-        const adminExist = await Admin.findOne({ email: email }).select("+password");
+        const adminExist = await Admin.findOne({ email: email })
         // Handle case when admin does not exist
         if (!adminExist) {
             return jsonFailed(res, null, "Admin not found", 404);
         }
         const role = await Role.findOne({ _id: adminExist.roleId });
+        console.log({ role });
     
         if (adminExist.isVerified && adminExist.isActive) {
           
