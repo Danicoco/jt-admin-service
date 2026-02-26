@@ -23,8 +23,8 @@ const AdminSchema = new mongoose.Schema({
   lastName:  { type: String, required: true },
   password:  { type: String, required: true },
   location:  String,
-  isVerified:{ type: Boolean, default: false },
-  isActive:  { type: Boolean, default: false },
+  isVerified:{ type: Boolean, default: true },
+  isActive:  { type: Boolean, default: true },
   photoUrl:    { type: String, default: null },
 }, {
   timestamps: true,
