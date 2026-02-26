@@ -7,7 +7,7 @@ const PermissionSchema = new Schema({
   module: {
     type: String,
   },
-  permission: "Map",
+  permissions: "Map",
 });
 
 const RoleSchema = new Schema(
