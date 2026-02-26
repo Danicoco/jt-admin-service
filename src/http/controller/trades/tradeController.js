@@ -21,9 +21,9 @@ const {
 
 const Controller = {
   listCryptoTrans: async (req, res) => {
-    const { giftcard, cryptoType, coin } = req.query;
+    const { giftcard, cryptoType, coin, transactionType, page = 1 } = req.query;
     try {
-      const trans = await getCryptoTransactions(cryptoType, coin, giftcard);
+      const trans = await getCryptoTransactions(cryptoType, coin, giftcard, transactionType, page);
       return jsonS(res, 200, "Crypto Transaction fetched", trans);
     } catch (err) {
       console.error("Error fetching crypto transaction:", err);

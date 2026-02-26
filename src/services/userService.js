@@ -47,8 +47,8 @@ async function getOverview(userId) {
   return safe(() => client.get(`/internal/customers/${userId}/overview`), null);
 }
 
-async function getCryptoTransactions(cryptoType, coin, giftcard, page = 1, limit = 20) {
-  return safe(() => walletClient.get(`/internal/crypto/transactions`, { params: { ...(cryptoType && { crytoType: cryptoType }), ...(coin && { coin }), ...(giftcard && { giftcard }), page, limit } }));
+async function getCryptoTransactions(cryptoType, coin, giftcard, transactionType, page = 1, limit = 20) {
+  return safe(() => walletClient.get(`/internal/crypto/transactions`, { params: { ...(cryptoType && { crytoType: cryptoType }), ...(coin && { coin }), ...(giftcard && { giftcard }),  ...(transactionType && { transactionType }), page, limit } }));
 }
 
 async function getTradeMetrics() {
