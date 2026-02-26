@@ -7,13 +7,14 @@ const PermissionSchema = new Schema(
     {
         module: {
             type: String,
-            permission: {
-                canCreate: Boolean,
-                canView: Boolean,
-                canUpdate: Boolean,
-                canDelete: Boolean,
-            }
-        }
+          },
+          permission: {
+              canCreate: Boolean,
+              canView: Boolean,
+              canUpdate: Boolean,
+              canTreat: Boolean,
+              canDelete: Boolean,
+          }
     }
 )
 
