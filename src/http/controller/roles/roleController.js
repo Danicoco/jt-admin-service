@@ -19,7 +19,7 @@ const Controller = {
     try {
       const role = await Role.findOne({ id: req.params.id });
       if (!role) return jsonFailed(res, {}, "Role does not exists", 404);
-      const result = await Role.updateOne({ _id: Role._id }, { ...req.body });
+      const result = await Role.updateOne({ _id: role._id }, { ...req.body });
       return jsonS(res, 200, "Role updated", result);
     } catch (err) {
       console.error(err);
