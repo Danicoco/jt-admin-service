@@ -12,12 +12,12 @@ const permissionFeatures = [
             ...basePermission,
         },
     },
-    {
-        module: "Wallet",
-        permissions: {
-            ...basePermission,
-        },
-    },
+    // {
+    //     module: "Wallet",
+    //     permissions: {
+    //         ...basePermission,
+    //     },
+    // },
     {
         module: "Role",
         permissions: {
@@ -30,27 +30,28 @@ const permissionFeatures = [
             ...basePermission,
         },
     },
-    {
-        module: "Shop",
-        permissions: {
-            ...basePermission,
-        },
-    },
-    {
-        module: "Shipping",
-        permissions: {
-            ...basePermission,
-        },
-    },
-    {
-        module: "Order",
-        permissions: {
-            canView: false,
-        },
-    },
+    // {
+    //     module: "Shop",
+    //     permissions: {
+    //         ...basePermission,
+    //     },
+    // },
+    // {
+    //     module: "Shipping",
+    //     permissions: {
+    //         ...basePermission,
+    //     },
+    // },
+    // {
+    //     module: "Order",
+    //     permissions: {
+    //         canView: false,
+    //     },
+    // },
     {
         module: "Trade",
         permissions: {
+            ...basePermission,
             canTreat: false,
         },
     },
