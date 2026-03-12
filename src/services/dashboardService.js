@@ -51,6 +51,8 @@ async function getSummary() {
     giftcardTransactions: toNumber(walletMetrics.giftcardVolume),
     deposits: toNumber(walletMetrics.nairaDeposits),
     withdrawals: toNumber(walletMetrics.nairaWithdrawals),
+    usersFiatBalance: toNumber(walletMetrics.nairaWithdrawals),
+    cryptoBalances: walletMetrics.cryptoBalances,
     productSold: toNumber(orderMetrics.productSold),
     orders: toNumber(orderMetrics.totalOrders),
     totalCustomers: toNumber(usersCount.count),

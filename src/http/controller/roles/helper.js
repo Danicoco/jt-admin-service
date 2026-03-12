@@ -5,9 +5,21 @@ const basePermission = {
     canDelete: false,
 }
 
-const permissionFeatures = [
+const permissionFeatures = [    
     {
         module: "Admin",
+        permissions: {
+            ...basePermission,
+        },
+    },
+    {
+        module: "Banner",
+        permissions: {
+            ...basePermission,
+        },
+    },
+    {
+        module: "Notification",
         permissions: {
             ...basePermission,
         },
