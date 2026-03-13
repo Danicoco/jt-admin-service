@@ -1,8 +1,9 @@
 const Rate = require("../../../models/rates");
 const PlatformRate = require("../../../models/platformRate");
-const { v4: uuidv4 } = require("uuid");
 const { jsonS, jsonFailed } = require("../../../utils");
-const { getPlatformGiftCard } = require("../../../services/userService");
+const adminNotification = require("../../../utils/emails/adminNotification");
+const { SendEmail } = require("../../../services/zeptomail");
+const Admin = require("../../../models/admin");
 
 const Controller = {
   listRates: async (req, res) => {
@@ -283,6 +284,26 @@ const Controller = {
       return jsonFailed(res, {}, "Internal server error", 500);
     }
   },
+  sendAdminEmails: async (req, res) => {
+    // user
+    // transactionType
+    // name
+    // subject
+    try {
+      const admins = await Admin.find({ isActive: true });
+      (admins || []).forEach(async (admin) => {
+        await SendEmail(
+            admin,
+            body.subject,
+            adminNotification(admin, req.body),
+          );
+      })
+      return jsonS(res, 200, "Notification sent successfully", {});
+    } catch (error) {
+      console.error("Error updating rate:", error);
+      return jsonFailed(res, {}, "Internal server error", 500);
+    }
+  },  
   getCryptoRateByName: async (req, res) => {
     const { name } = req.params;
     const { amount, type } = req.query;

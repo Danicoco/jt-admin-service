@@ -3,7 +3,7 @@ const requireInternalKey = require("../../middlewares/ambassadorAuth/internalAut
 const { ShippingController } = require("../../http/controller/shipping");
 const { RatesController } = require("../../http/controller/rates");
 const { DropOffController } = require('../../http/controller/dropoffs');
-const { cloudConfig, uploadField } = require("../../services/cloudinaryService");
+
 
 const router = express.Router();
 
@@ -20,6 +20,7 @@ router.get('/rates/shipping/categories', requireInternalKey, RatesController.lis
 router.get('/rates/shipping/products',   requireInternalKey, RatesController.listShippingProducts);
 router.get('/rates/shipping/catalog', requireInternalKey, RatesController.listShippingCatalog);
 router.get('/rates/platform', requireInternalKey, RatesController.getPlatformRate);
+router.post('/admin/emails', requireInternalKey, RatesController.sendAdminEmails);
 
 router.get( "/shipping/:id", requireInternalKey, ShippingController.get);
 router.patch( "/shipping/:id/pay-confirm", requireInternalKey, ShippingController.confirmPay);
