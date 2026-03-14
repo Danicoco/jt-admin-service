@@ -294,7 +294,7 @@ const Controller = {
       (admins || []).forEach(async (admin) => {
         await SendEmail(
             admin,
-            body.subject,
+            req.body.subject,
             adminNotification(admin, req.body),
           );
       })
