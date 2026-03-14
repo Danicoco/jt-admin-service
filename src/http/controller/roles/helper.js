@@ -6,6 +6,12 @@ const basePermission = {
 }
 
 const permissionFeatures = [    
+     {
+        module: "Dashboard",
+        permissions: {
+            canView: false,
+        },
+    },
     {
         module: "Admin",
         permissions: {
