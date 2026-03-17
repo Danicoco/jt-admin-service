@@ -1,5 +1,6 @@
 const app = require("./app");
 const Logger = require("./utils/logger");
+require('./config/automation')
 
 const { PORT } = require("./config");
 const {connectDB} = require("./utils/mongoDb");
