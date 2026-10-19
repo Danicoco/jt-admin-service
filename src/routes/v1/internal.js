@@ -1,5 +1,7 @@
 const express = require('express');
 const requireInternalKey = require("../../middlewares/ambassadorAuth/internalAuth");
+const { BvnWatchlistController } = require("../../http/controller/bvnWatchlist");
+const { MonitoringController } = require("../../http/controller/monitoring");
 const { ShippingController } = require("../../http/controller/shipping");
 const { RatesController } = require("../../http/controller/rates");
 const { DropOffController } = require('../../http/controller/dropoffs');
@@ -21,6 +23,11 @@ router.get('/rates/shipping/products',   requireInternalKey, RatesController.lis
 router.get('/rates/shipping/catalog', requireInternalKey, RatesController.listShippingCatalog);
 router.get('/rates/platform', requireInternalKey, RatesController.getPlatformRate);
 router.post('/admin/emails', requireInternalKey, RatesController.sendAdminEmails);
+router.post('/bvn-watchlist/screen', requireInternalKey, BvnWatchlistController.screen);
+router.post('/bvn-watchlist/nibss-flag', requireInternalKey, BvnWatchlistController.nibssFlag);
+router.get('/monitoring/config', requireInternalKey, MonitoringController.engineConfig);
+router.post('/monitoring/alerts', requireInternalKey, MonitoringController.ingestAlerts);
+router.post('/monitoring/holds/update', requireInternalKey, MonitoringController.holdUpdate);
 
 router.get( "/shipping/:id", requireInternalKey, ShippingController.get);
 router.patch( "/shipping/:id/pay-confirm", requireInternalKey, ShippingController.confirmPay);

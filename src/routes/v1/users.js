@@ -9,6 +9,7 @@ router.get("/users/metrics", auth, UsersController.metrics);
 router.get("/users/:id/orders", auth, UsersController.userOrders);
 router.get("/users/:id/transactions", auth, UsersController.userTransactions);
 router.patch("/users/:id/status", auth, UsersController.updateUserStatus);
+router.patch("/users/:id/risk", auth, UsersController.updateUserRisk);
 router.get("/users/:id", auth, UsersController.userDetails);
 
 module.exports = {

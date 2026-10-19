@@ -7,7 +7,10 @@ const {
   getOverview,
   getTransactions,
   setUserStatus,
+  getRiskSignals,
+  setRiskOverride,
 } = require("../../../services/userService");
+const { assessRisk, RISK_LEVELS } = require("../../../services/riskService");
 
 const Controller = {
   list: async (req, res) => {
@@ -20,6 +23,12 @@ const Controller = {
         verified,
         active,
       });
+      const customers = out.customers || [];
+      const signals = await getRiskSignals(customers.map((c) => c._id));
+      out.customers = customers.map((c) => ({
+        ...c,
+        risk: assessRisk(c, signals[c._id]),
+      }));
       return jsonS(res, 200, "Users fetched", out);
     } catch (e) {
       console.error("admin users.list error:", e?.response?.data || e);
@@ -41,9 +50,10 @@ const Controller = {
   userDetails: async (req, res) => {
     try {
       const { id } = req.params;
-      const [overview, holdings] = await Promise.all([
+      const [overview, holdings, signals] = await Promise.all([
         getOverview(id),
         getHoldings(id),
+        getRiskSignals([id]),
       ]);
       if (!overview) return jsonFailed(res, {}, "Not found", 404);
 
@@ -52,6 +62,8 @@ const Controller = {
         location: overview.location,
         ordersCount: overview.ordersCount,
         holdings,
+        activity: signals[id] || null,
+        risk: assessRisk(overview.profile, signals[id]),
       });
     } catch (e) {
       console.error("admin.customers.details error:", e);
@@ -95,6 +107,26 @@ const Controller = {
       return jsonFailed(res, {}, "Error", 500);
     }
   },
+};
+
+Controller.updateUserRisk = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { level, note } = req.body;
+    if (level !== "auto" && !RISK_LEVELS.includes(level)) {
+      return jsonFailed(res, {}, "level must be low, medium, high or auto", 400);
+    }
+    const out = await setRiskOverride(id, {
+      level,
+      note,
+      setBy: req.user?.email || req.user?.id,
+    });
+    return jsonS(res, 200, "Risk level updated", out);
+  } catch (e) {
+    console.error("admin.customers.risk error:", e?.response?.data || e);
+    const status = e?.response?.status === 404 ? 404 : 500;
+    return jsonFailed(res, {}, status === 404 ? "Not found" : "Error", status);
+  }
 };
 
 module.exports = Controller;

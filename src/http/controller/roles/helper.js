@@ -74,6 +74,16 @@ const permissionFeatures = [
         },
     },
     {
+        // transaction monitoring: canView = see alerts/cases, canUpdate = work
+        // alerts, holds and cases, canConfigure = edit rules and settings
+        module: "Monitoring",
+        permissions: {
+            canView: false,
+            canUpdate: false,
+            canConfigure: false,
+        },
+    },
+    {
         module: "Rate",
         permissions: {
             ...basePermission,
