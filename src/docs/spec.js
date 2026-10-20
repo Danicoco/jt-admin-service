@@ -323,7 +323,7 @@ const MON_SETTINGS = {
   holdTimeoutMinutes: 120,
   onHoldTimeout: "release",
   reviewSlaHours: 24,
-  notifyEmail: "jamestown@gmail.com",
+  notifyEmail: "jamestown.ng@gmail.com",
   notifyMinSeverity: "high",
 };
 const NO_PERMISSION = fail("You don't have permission to do this (Monitoring: canConfigure)", null);
@@ -877,7 +877,7 @@ const routes = [
     description:
       "`onHoldTimeout`: what happens to a held payment nobody reviews within `holdTimeoutMinutes` — `release` (send it), " +
       "`reject` (refund) or `keep` (wait for a person). `notifyMinSeverity` can be `off`.",
-    body: { holdTimeoutMinutes: 120, onHoldTimeout: "release", reviewSlaHours: 24, notifyEmail: "jamestown@gmail.com", notifyMinSeverity: "high" },
+    body: { holdTimeoutMinutes: 120, onHoldTimeout: "release", reviewSlaHours: 24, notifyEmail: "jamestown.ng@gmail.com", notifyMinSeverity: "high" },
     responses: { 200: ok("Settings updated", MON_SETTINGS), 403: NO_PERMISSION },
   }),
   route("get", "/admin/monitoring/audit", {

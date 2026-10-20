@@ -27,7 +27,7 @@ const MonitoringSettingsSchema = new Schema(
     holdTimeoutMinutes: { type: Number, default: 120, min: 5, max: 10080 },
     onHoldTimeout: { type: String, enum: ["release", "reject", "keep"], default: "release" },
     reviewSlaHours: { type: Number, default: 24, min: 1, max: 720 },
-    notifyEmail: { type: String, default: "jamestown@gmail.com" },
+    notifyEmail: { type: String, default: "jamestown.ng@gmail.com" },
     notifyMinSeverity: { type: String, enum: [...SEVERITIES, "off"], default: "high" },
     updatedBy: { type: String },
   },

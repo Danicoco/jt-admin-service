@@ -3,7 +3,7 @@ const { lookupBvns, flagUserForWatchlist, batchUsers } = require("./userService"
 const { SendEmail } = require("./zeptomail");
 const watchlistAlertTemplate = require("../utils/emails/watchlistAlert");
 
-const ALERT_EMAIL = process.env.WATCHLIST_ALERT_EMAIL || "jamestown@gmail.com";
+const ALERT_EMAIL = process.env.WATCHLIST_ALERT_EMAIL || "jamestown.ng@gmail.com";
 const LOOKUP_CHUNK = 1000; // wallet service limit per lookup call
 
 const BVN_RE = /^\d{11}$/;
