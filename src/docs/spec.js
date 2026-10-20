@@ -342,7 +342,9 @@ const routes = [
     tag: "Auth",
     auth: "none",
     summary: "Admin login",
-    description: "Returns a JWT valid for 90 days plus the admin's role permissions.",
+    description:
+      "Returns a JWT valid for 90 days plus the admin's role permissions. Inactive or unverified admins can't log in, " +
+      "and every admin request re-checks the account, so a deactivated admin's existing token stops working within 30 seconds.",
     body: { email: "ops@jamestown.ng", password: "Adm1n!pass" },
     required: ["email", "password"],
     responses: {
@@ -356,6 +358,7 @@ const routes = [
         expiresIn: 7776000,
       }),
       400: fail("Invalid username or password", null),
+      403: described("Correct password, but the admin is inactive or unverified", fail("Your admin account is inactive. Contact an administrator.", null)),
       404: fail("Admin not found", null),
     },
   }),

@@ -46,32 +46,31 @@ const Controller = {
     login: async (req, res) => {
       const { email, password } = req.body;
       try {
-        const adminExist = await Admin.findOne({ email: email }).lean()
+        const adminExist = await Admin.findOne({ email: String(email || "").toLowerCase().trim() }).lean()
         // Handle case when admin does not exist
         if (!adminExist) {
             return jsonFailed(res, null, "Admin not found", 404);
         }
-        console.log({ adminExist });
-        const role = await Role.findOne({ _id: adminExist.roleId });
-        console.log({ role });
-    
-        if (adminExist.isVerified && adminExist.isActive) {
-          
-          const passwordIsValid = await bcrypt.compareSync(password, adminExist.password);
-          
-          if (passwordIsValid) {
-            req.session.admin = adminExist; 
-            var token = Controller.getToken(adminExist, role); 
-            return jsonS(res, 200, "success", token, {}); 
-          } else {
-            return jsonFailed(res, null, "Invalid username or password");
-          }
-    
-        } else if (!adminExist.isVerified) {
-          return jsonFailed(res, null, "Admin not verified");
-        } else if (!adminExist.isActive) {
-          return jsonFailed(res, null, "Admin not active");
+
+        // check the password first, so account status isn't revealed to
+        // someone who only knows the email
+        const passwordIsValid = bcrypt.compareSync(String(password || ""), adminExist.password);
+        if (!passwordIsValid) {
+          return jsonFailed(res, null, "Invalid username or password");
         }
+
+        // inactive (or unverified) admins can't log in
+        if (adminExist.isActive !== true) {
+          return jsonFailed(res, null, "Your admin account is inactive. Contact an administrator.", 403);
+        }
+        if (adminExist.isVerified !== true) {
+          return jsonFailed(res, null, "Admin not verified", 403);
+        }
+
+        const role = await Role.findOne({ _id: adminExist.roleId });
+        req.session.admin = adminExist;
+        var token = Controller.getToken(adminExist, role);
+        return jsonS(res, 200, "success", token, {});
         
       } catch (error) {
         console.error(error);
@@ -95,13 +94,17 @@ const Controller = {
         if (user.isVerified === true) {
             return jsonFailed(res, null, "User already verified", 400);
         }
+        // verifying a phone must not reactivate a deactivated admin
+        if (user.isActive === false) {
+            return jsonFailed(res, null, "Your admin account is inactive. Contact an administrator.", 403);
+        }
     
         const verification = await verifyOtpTemp(phoneNumber, otp);
         if (verification.status === "approved") {
     
             const updateResult = await Admin.updateOne(
             { phoneNumber: phoneNumber, isVerified: false }, 
-            { $set: { isVerified: true, isActive: true } }
+            { $set: { isVerified: true } }
             );
     
             if (updateResult.nModified === 0) {
