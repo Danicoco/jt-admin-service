@@ -74,6 +74,23 @@ const permissionFeatures = [
         },
     },
     {
+        // BVN watchlist: canView = see the list, canCreate = add / upload CSV,
+        // canDelete = remove entries
+        module: "Watchlist",
+        permissions: {
+            canView: false,
+            canCreate: false,
+            canDelete: false,
+        },
+    },
+    {
+        // outgoing withdrawals (page and customer tab)
+        module: "Withdrawal",
+        permissions: {
+            canView: false,
+        },
+    },
+    {
         // transaction monitoring: canView = see alerts/cases, canUpdate = work
         // alerts, holds and cases, canConfigure = edit rules and settings
         module: "Monitoring",

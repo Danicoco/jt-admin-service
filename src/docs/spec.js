@@ -616,7 +616,7 @@ const routes = [
   // ---------------------------------------------------------- BVN watchlist
   route("get", "/admin/bvn-watchlist", {
     tag: "BVN watchlist",
-    summary: "List watchlisted BVNs and whether they're on our system",
+    summary: "List watchlisted BVNs and whether they're on our system (needs Watchlist: canView)",
     description:
       "The returned page is re-checked live against wallet BVNs. Any customer found with a listed BVN who isn't flagged yet " +
       "is flagged and deactivated, and compliance is emailed. If the live check fails, the last known status is shown " +
@@ -655,12 +655,12 @@ const routes = [
   }),
   route("get", "/admin/bvn-watchlist/summary", {
     tag: "BVN watchlist",
-    summary: "Watchlist totals",
+    summary: "Watchlist totals (needs Watchlist: canView)",
     responses: { 200: ok("Watchlist summary", { total: 240, onSystem: 3, notOnSystem: 237, flaggedAccounts: 3 }) },
   }),
   route("post", "/admin/bvn-watchlist", {
     tag: "BVN watchlist",
-    summary: "Add one BVN",
+    summary: "Add one BVN (needs Watchlist: canCreate)",
     description: "Customers who already have this BVN are flagged and deactivated straight away, and compliance is emailed.",
     body: { bvn: "22200000001", name: "Known fraud ring", reason: "Reported by bank" },
     required: ["bvn"],
@@ -675,7 +675,7 @@ const routes = [
   }),
   route("post", "/admin/bvn-watchlist/upload", {
     tag: "BVN watchlist",
-    summary: "Add BVNs in bulk from a CSV",
+    summary: "Add BVNs in bulk from a CSV (needs Watchlist: canCreate)",
     description:
       "CSV columns: `bvn,name,reason` (header optional; with a header the order doesn't matter). Max 2MB / 20,000 rows. " +
       "Invalid rows are skipped and reported (first 200 listed). Matching customers are flagged as with a single add.",
@@ -691,7 +691,7 @@ const routes = [
   }),
   route("delete", "/admin/bvn-watchlist/:id", {
     tag: "BVN watchlist",
-    summary: "Remove a BVN from the watchlist",
+    summary: "Remove a BVN from the watchlist (needs Watchlist: canDelete)",
     description: "Customers already flagged stay deactivated; reactivate them from the customer page after review.",
     params: { id: "8c1f2e3d-4b5a-4c6d-9e8f-0a1b2c3d4e5f" },
     responses: { 200: ok("BVN removed from the watchlist"), 404: fail("Entry not found") },
@@ -900,7 +900,7 @@ const routes = [
   // ---------------------------------------------------------- Withdrawals
   route("get", "/admin/withdrawals", {
     tag: "Withdrawals",
-    summary: "All outgoing withdrawals with the customer attached",
+    summary: "All outgoing withdrawals with the customer attached (needs Withdrawal: canView)",
     query: {
       page: 1,
       limit: 20,
@@ -927,7 +927,7 @@ const routes = [
   }),
   route("get", "/admin/withdrawals/summary", {
     tag: "Withdrawals",
-    summary: "Bank payout totals",
+    summary: "Bank payout totals (needs Withdrawal: canView)",
     responses: {
       200: ok("Withdrawal summary fetched", {
         totalCount: 1240,
