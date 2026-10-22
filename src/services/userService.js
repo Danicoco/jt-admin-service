@@ -91,6 +91,13 @@ async function setUserStatus(userId, isActive) {
   return safe(() => client.patch(`/internal/users/${userId}/status`, { isActive }),null);
 }
 
+// one billed Prembly lookup on the wallet service; it can take up to ~20s.
+// Throws with the wallet service's response on a failed check.
+async function verifyUserBvn(userId, body) {
+  const { data } = await walletClient.post(`/internal/users/${userId}/bvn/verify`, body, { timeout: 45000 });
+  return data;
+}
+
 async function getRiskSignals(userIds) {
   if (!userIds?.length) return {};
   const out = await safe(
@@ -168,6 +175,7 @@ const rescanCustomer = (userId, days) => wallet("post", "/scan", { userId, days 
 const notifyMonitoringConfigChanged = () => wallet("post", "/config-changed").catch(() => null);
 
 module.exports = {
+  verifyUserBvn,
   monitoringCatalog,
   simulateRule,
   customerLedger,

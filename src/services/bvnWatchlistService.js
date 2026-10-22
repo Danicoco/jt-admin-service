@@ -2,6 +2,8 @@ const { BvnWatchlist } = require("../models/bvnWatchlist");
 const { lookupBvns, flagUserForWatchlist, batchUsers } = require("./userService");
 const { SendEmail } = require("./zeptomail");
 const watchlistAlertTemplate = require("../utils/emails/watchlistAlert");
+const duplicateBvnAlertTemplate = require("../utils/emails/duplicateBvnAlert");
+const Admin = require("../models/admin");
 
 const ALERT_EMAIL = process.env.WATCHLIST_ALERT_EMAIL || "jamestown.ng@gmail.com";
 const LOOKUP_CHUNK = 1000; // wallet service limit per lookup call
@@ -129,6 +131,23 @@ async function flagNibss({ userId, bvn, message }) {
   const entry = await BvnWatchlist.findOne({ bvn: value }).lean();
   const flagged = await processMatches([{ entry, userId: String(userId) }], "nibss_flag");
   return { listed: true, flagged: flagged.length };
+}
+
+/**
+ * Called by the wallet service after it deactivates accounts that share a BVN
+ * with another account: email every active admin the list.
+ * @param {Array<{ userId, user, keptUserId, keptUser, bvnLast4, flagged }>} accounts
+ */
+async function alertDuplicates(accounts) {
+  const admins = await Admin.find({ isActive: true }).select("email firstName lastName").lean();
+  const subject = `${accounts.length} account${accounts.length === 1 ? "" : "s"} deactivated for a duplicate BVN`;
+  const html = duplicateBvnAlertTemplate({ accounts });
+  await Promise.all(
+    admins.map((admin) =>
+      SendEmail(admin, subject, html).catch((e) => console.error("duplicate bvn alert email failed", admin.email, e)),
+    ),
+  );
+  return { notified: admins.length };
 }
 
 async function addOne({ bvn, name, reason }, addedBy) {
@@ -323,4 +342,4 @@ async function remove(id) {
   return out.deletedCount > 0;
 }
 
-module.exports = { screen, flagNibss, addOne, addFromCsv, list, summary, remove, parseCsv, rowsToRecords };
+module.exports = { screen, flagNibss, alertDuplicates, addOne, addFromCsv, list, summary, remove, parseCsv, rowsToRecords };

@@ -596,6 +596,24 @@ const routes = [
     required: ["isActive"],
     responses: { 200: ok("OK", { _id: USER_ID, isActive: false }), 400: fail("Failed") },
   }),
+  route("post", "/admin/users/:id/verify-bvn", {
+    tag: "Customers",
+    summary: "Retry BVN verification for a customer (needs Customer: canUpdate)",
+    description:
+      "One billed Prembly lookup. Uses `bvn` if given, otherwise the BVN saved on the customer's wallet. Only the name " +
+      "is matched. Watchlisted BVNs restrict the account " +
+      "as in the app. The customer is not emailed.",
+    params: { id: USER_ID },
+    body: { bvn: "22200000101" },
+    responses: {
+      200: ok("BVN verified successfully", { verified: true, outcome: "verified" }),
+      400: fail("This customer has no valid BVN on file", { verified: false, outcome: "no_bvn" }),
+      403: fail("This BVN is on the watchlist. The account has been restricted.", { verified: false, outcome: "watchlisted" }),
+      409: fail("This BVN is already verified on another account", { verified: false, outcome: "duplicate" }),
+      422: fail("The name on the BVN doesn't match the account", { verified: false, outcome: "mismatch" }),
+      503: fail("BVN verification is temporarily unavailable, please try again later", { verified: false, outcome: "provider_error" }),
+    },
+  }),
   route("patch", "/admin/users/:id/risk", {
     tag: "Customers",
     summary: "Set a customer's risk level manually",
@@ -1571,6 +1589,25 @@ const routes = [
     body: { userId: USER_ID, bvn: "22200000001" },
     required: ["userId", "bvn"],
     responses: { 200: ok("OK", { listed: true }), 400: fail("userId and bvn are required") },
+  }),
+  route("post", "/admin/internal/bvn/duplicate-alert", {
+    tag: "Internal",
+    auth: "internal",
+    summary: "Email all active admins about accounts deactivated for a duplicate BVN (called by the wallet service)",
+    body: {
+      accounts: [
+        {
+          userId: USER_ID,
+          user: { firstName: "Ada", lastName: "Obi", email: "ada.obi@example.com", phoneNumber: "08012345678" },
+          keptUserId: "0b7f3c2a-1d4e-4f5a-8b6c-7d8e9f0a1b2c",
+          keptUser: { firstName: "Ada", lastName: "Obi", email: "ada@example.com" },
+          bvnLast4: "0001",
+          flagged: true,
+        },
+      ],
+    },
+    required: ["accounts"],
+    responses: { 200: ok("OK", { notified: 4 }), 400: fail("accounts required") },
   }),
   route("post", "/admin/internal/shipping", {
     tag: "Internal",

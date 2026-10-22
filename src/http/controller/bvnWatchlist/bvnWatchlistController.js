@@ -92,6 +92,18 @@ const Controller = {
       return jsonFailed(res, {}, "Screening failed", 500);
     }
   },
+
+  // internal: the wallet service deactivated accounts that share a BVN
+  duplicateAlert: async (req, res) => {
+    const accounts = req.body?.accounts;
+    if (!Array.isArray(accounts) || !accounts.length) return jsonFailed(res, {}, "accounts required", 400);
+    try {
+      return jsonS(res, 200, "OK", await svc.alertDuplicates(accounts));
+    } catch (e) {
+      console.error("bvnWatchlist.duplicateAlert error:", e);
+      return jsonFailed(res, {}, "Failed to send duplicate BVN alert", 500);
+    }
+  },
 };
 
 module.exports = Controller;

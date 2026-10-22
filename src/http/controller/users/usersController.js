@@ -9,6 +9,7 @@ const {
   setUserStatus,
   getRiskSignals,
   setRiskOverride,
+  verifyUserBvn,
 } = require("../../../services/userService");
 const { assessRisk, RISK_LEVELS } = require("../../../services/riskService");
 
@@ -27,6 +28,8 @@ const Controller = {
       const signals = await getRiskSignals(customers.map((c) => c._id));
       out.customers = customers.map((c) => ({
         ...c,
+        isBvnVerified: Boolean(signals[c._id]?.isBvnVerified),
+        hasBvn: Boolean(signals[c._id]?.hasBvn),
         risk: assessRisk(c, signals[c._id]),
       }));
       return jsonS(res, 200, "Users fetched", out);
@@ -126,6 +129,26 @@ Controller.updateUserRisk = async (req, res) => {
     console.error("admin.customers.risk error:", e?.response?.data || e);
     const status = e?.response?.status === 404 ? 404 : 500;
     return jsonFailed(res, {}, status === 404 ? "Not found" : "Error", status);
+  }
+};
+
+// retry BVN verification for a customer who isn't verified yet
+Controller.verifyUserBvn = async (req, res) => {
+  const { id } = req.params;
+  const { bvn } = req.body || {};
+  try {
+    const out = await verifyUserBvn(id, {
+      ...(bvn && { bvn: String(bvn).trim() }),
+      requestedBy: req.user?.email || req.user?.id,
+    });
+    return jsonS(res, 200, out?.message || "BVN verified successfully", out?.data);
+  } catch (e) {
+    const resp = e?.response;
+    if (resp?.status && resp.status < 500) {
+      return jsonFailed(res, resp.data?.data || {}, resp.data?.message || "BVN verification failed", resp.status);
+    }
+    console.error("admin.customers.verifyBvn error:", resp?.data || e.message);
+    return jsonFailed(res, resp?.data?.data || {}, resp?.data?.message || "BVN verification is unavailable, please try again later", 503);
   }
 };
 
