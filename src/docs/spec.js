@@ -432,9 +432,21 @@ const routes = [
   // ---------------------------------------------------------- Admins, roles & settings
   route("get", "/admin", {
     tag: "Admins & roles",
-    auth: "none",
-    summary: "List admins",
-    responses: { 200: ok("Admins fetched", { admins: [{ ...ADMIN, roleId: ROLE }] }) },
+    summary: "List admins (search matches name, email or phone, case-insensitive)",
+    query: { search: "jane" },
+    responses: { 200: ok("Admins fetched", { admins: [{ ...ADMIN, roleId: ROLE }] }), 401: NO_TOKEN, 403: NOT_ADMIN },
+  }),
+  route("patch", "/admin/:id/status", {
+    tag: "Admins & roles",
+    summary: "Activate or deactivate an admin (Admin: canUpdate)",
+    params: { id: ADMIN_ID },
+    body: { isActive: false },
+    required: ["isActive"],
+    responses: {
+      200: ok("Admin deactivated", { _id: ADMIN_ID, isActive: false }),
+      400: fail("You can't deactivate your own account"),
+      404: fail("Admin not found"),
+    },
   }),
   route("get", "/admin/roles", {
     tag: "Admins & roles",
@@ -469,9 +481,13 @@ const routes = [
   }),
   route("delete", "/admin/roles/:id", {
     tag: "Admins & roles",
-    summary: "Delete a role (only if unassigned)",
+    summary: "Delete a role (every admin on it must be deactivated first)",
     params: { id: ROLE_ID },
-    responses: { 200: ok("Role delete", { acknowledged: true, deletedCount: 1 }), 500: fail("Role currently assigned") },
+    responses: {
+      200: ok("Role deleted", { acknowledged: true, deletedCount: 1 }),
+      400: fail("Deactivate the 2 active admins on this role before deleting it"),
+      404: fail("Role does not exists"),
+    },
   }),
   route("get", "/admin/settings", {
     tag: "Admins & roles",
