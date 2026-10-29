@@ -1625,6 +1625,14 @@ const routes = [
     required: ["accounts"],
     responses: { 200: ok("OK", { notified: 4 }), 400: fail("accounts required") },
   }),
+  route("post", "/admin/internal/bvn/provider-balance-alert", {
+    tag: "Internal",
+    auth: "internal",
+    summary: "Email all active admins that BVN checks are paused for an empty Prembly wallet (called by the wallet service)",
+    description: "`pending` is the number of unverified customers waiting on an automatic check.",
+    body: { provider: "prembly", pending: 12 },
+    responses: { 200: ok("OK", { notified: 4 }) },
+  }),
   route("post", "/admin/internal/shipping", {
     tag: "Internal",
     auth: "internal",

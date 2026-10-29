@@ -26,6 +26,7 @@ router.post('/admin/emails', requireInternalKey, RatesController.sendAdminEmails
 router.post('/bvn-watchlist/screen', requireInternalKey, BvnWatchlistController.screen);
 router.post('/bvn-watchlist/nibss-flag', requireInternalKey, BvnWatchlistController.nibssFlag);
 router.post('/bvn/duplicate-alert', requireInternalKey, BvnWatchlistController.duplicateAlert);
+router.post('/bvn/provider-balance-alert', requireInternalKey, BvnWatchlistController.providerBalanceAlert);
 router.get('/monitoring/config', requireInternalKey, MonitoringController.engineConfig);
 router.post('/monitoring/alerts', requireInternalKey, MonitoringController.ingestAlerts);
 router.post('/monitoring/holds/update', requireInternalKey, MonitoringController.holdUpdate);

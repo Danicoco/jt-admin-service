@@ -104,6 +104,18 @@ const Controller = {
       return jsonFailed(res, {}, "Failed to send duplicate BVN alert", 500);
     }
   },
+
+  // internal: the wallet service's BVN job hit an empty Prembly wallet
+  providerBalanceAlert: async (req, res) => {
+    const provider = String(req.body?.provider || "prembly");
+    const pending = Math.max(parseInt(req.body?.pending, 10) || 0, 0);
+    try {
+      return jsonS(res, 200, "OK", await svc.alertProviderBalance({ provider, pending }));
+    } catch (e) {
+      console.error("bvnWatchlist.providerBalanceAlert error:", e);
+      return jsonFailed(res, {}, "Failed to send provider balance alert", 500);
+    }
+  },
 };
 
 module.exports = Controller;

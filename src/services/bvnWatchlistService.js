@@ -3,6 +3,7 @@ const { lookupBvns, flagUserForWatchlist, batchUsers } = require("./userService"
 const { SendEmail } = require("./zeptomail");
 const watchlistAlertTemplate = require("../utils/emails/watchlistAlert");
 const duplicateBvnAlertTemplate = require("../utils/emails/duplicateBvnAlert");
+const bvnProviderBalanceAlertTemplate = require("../utils/emails/bvnProviderBalanceAlert");
 const Admin = require("../models/admin");
 
 const ALERT_EMAIL = process.env.WATCHLIST_ALERT_EMAIL || "jamestown.ng@gmail.com";
@@ -145,6 +146,22 @@ async function alertDuplicates(accounts) {
   await Promise.all(
     admins.map((admin) =>
       SendEmail(admin, subject, html).catch((e) => console.error("duplicate bvn alert email failed", admin.email, e)),
+    ),
+  );
+  return { notified: admins.length };
+}
+
+/**
+ * Email every active admin that BVN checks are paused because the identity
+ * provider's wallet is out of balance.
+ */
+async function alertProviderBalance({ provider, pending }) {
+  const admins = await Admin.find({ isActive: true }).select("email firstName lastName").lean();
+  const subject = "Action needed: BVN verification paused (insufficient Prembly balance)";
+  const html = bvnProviderBalanceAlertTemplate({ provider, pending });
+  await Promise.all(
+    admins.map((admin) =>
+      SendEmail(admin, subject, html).catch((e) => console.error("bvn provider balance alert email failed", admin.email, e)),
     ),
   );
   return { notified: admins.length };
@@ -342,4 +359,4 @@ async function remove(id) {
   return out.deletedCount > 0;
 }
 
-module.exports = { screen, flagNibss, alertDuplicates, addOne, addFromCsv, list, summary, remove, parseCsv, rowsToRecords };
+module.exports = { screen, flagNibss, alertDuplicates, alertProviderBalance, addOne, addFromCsv, list, summary, remove, parseCsv, rowsToRecords };
